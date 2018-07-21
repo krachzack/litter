@@ -22,7 +22,6 @@ pub fn new<'a, 'b>() -> App<'a, 'b> {
                 .short("o")
                 .help("Sets the output file path for the combined scene.")
                 .value_name("OUTPUT_FILE")
-                .takes_value(true)
-                .multiple(true),
+                .takes_value(true),
         )
 }

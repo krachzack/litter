@@ -1,6 +1,7 @@
 use app;
 use clap::{ArgMatches, Values};
 use failure::Error;
+use litter::litter;
 use std::path::PathBuf;
 
 pub struct Launcher;
@@ -17,15 +18,17 @@ impl Launcher {
 
         // Resolve first input and then output files, exit early if something happens.
         let input_obj_paths = Self::resolve_paths(&matches, app::VALUE_INPUT_FILES, InputFile)?;
-        let output_obj_paths = Self::resolve_paths(&matches, app::VALUE_OUTPUT_FILES, OutputFile)?;
+        let output_obj_path = {
+            let mut output_obj_paths =
+                Self::resolve_paths(&matches, app::VALUE_OUTPUT_FILES, OutputFile)?;
+            assert!(
+                output_obj_paths.len() == 1,
+                "Expected exactly one output OBJ"
+            );
+            output_obj_paths.remove(0)
+        };
 
-        Self::run(input_obj_paths, output_obj_paths)
-    }
-
-    fn run(input_objs: Vec<PathBuf>, output_objs: Vec<PathBuf>) -> Result<(), Error> {
-        println!("Input: {:?}", input_objs);
-        println!("Output: {:?}", output_objs);
-        Ok(())
+        litter(input_obj_paths, output_obj_path)
     }
 
     fn resolve_paths(

@@ -2,10 +2,13 @@
 extern crate clap;
 #[macro_use]
 extern crate failure;
+extern crate aitios_asset;
+extern crate aitios_scene;
 
 mod app;
 mod err;
 mod launcher;
+mod litter;
 
 use err::summarize_error;
 use failure::Error;

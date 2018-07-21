@@ -6,3 +6,5 @@ authors = ["krachzack <hello@phstadler.com>"]
 [dependencies]
 clap = "2.32.0"
 failure = "0.1.1"
+aitios-asset = { git = "https://github.com/krachzack/aitios-asset.git" }
+aitios-scene = { git = "https://github.com/krachzack/aitios-scene.git" }

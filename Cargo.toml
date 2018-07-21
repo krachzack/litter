@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["krachzack <hello@phstadler.com>"]
 
 [dependencies]
+clap = "2.32.0"
+failure = "0.1.1"

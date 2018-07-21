@@ -45,8 +45,13 @@ fn make_grid<'a>(mut args: impl Iterator<Item = &'a str>) -> Result<Box<dyn Filt
     })?;
 
     let mut dimension_clone_counts = dimension_clone_counts.split("x").map(|dim| {
-        usize::from_str_radix(dim, 10)
-            .map_err(|e| e.context("Amount of clones in a grid filter could not be read."))
+        // For empty dimensions, fill  in 1, e.g. xx2 is 1x1x2
+        if dim.is_empty() {
+            Ok(1)
+        } else {
+            usize::from_str_radix(dim, 10)
+                .map_err(|e| e.context("Amount of clones in a grid filter could not be read."))
+        }
     });
 
     // Exit early if no args given to grid

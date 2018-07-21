@@ -1,6 +1,7 @@
 use app;
 use clap::{ArgMatches, Values};
 use failure::Error;
+use filter::{filter_from_spec, Filter};
 use litter::litter;
 use std::path::PathBuf;
 
@@ -28,7 +29,11 @@ impl Launcher {
             output_obj_paths.remove(0)
         };
 
-        litter(input_obj_paths, output_obj_path)
+        // Then build the filters
+        let filters = Self::make_filters(&matches)?;
+
+        // And set the ball rolling...
+        litter(input_obj_paths, output_obj_path, &filters)
     }
 
     fn resolve_paths(
@@ -80,5 +85,16 @@ impl Launcher {
                 ))
             }
         })
+    }
+
+    fn make_filters(matches: &ArgMatches) -> Result<Vec<Box<dyn Filter>>, Error> {
+        let matches = matches.values_of(app::VALUE_FILTERS);
+
+        match matches {
+            // No filter argument, thats ok, just don't filter
+            None => return Ok(vec![]),
+            // Otherwise pull out the filer descriptions
+            Some(matches) => matches.map(filter_from_spec).collect(),
+        }
     }
 }

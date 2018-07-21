@@ -154,6 +154,7 @@ name = "litter"
 version = "0.1.0"
 dependencies = [
  "aitios-asset 0.1.0 (git+https://github.com/krachzack/aitios-asset.git)",
+ "aitios-geom 0.1.0 (git+https://github.com/krachzack/aitios-geom.git)",
  "aitios-scene 0.1.0 (git+https://github.com/krachzack/aitios-scene.git)",
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",

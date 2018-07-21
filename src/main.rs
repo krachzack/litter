@@ -3,10 +3,12 @@ extern crate clap;
 #[macro_use]
 extern crate failure;
 extern crate aitios_asset;
+extern crate aitios_geom;
 extern crate aitios_scene;
 
 mod app;
 mod err;
+mod filter;
 mod launcher;
 mod litter;
 

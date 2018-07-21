@@ -1,15 +1,17 @@
 use aitios_asset::obj;
 use aitios_scene::Entity;
 use failure::Error;
+use filter::Filter;
 use std::borrow::Borrow;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Combines the given input OBJ files and merges
 /// them into a single OBJ/MTL pair to be persisted in the
 /// given output path.
-pub fn litter(
+pub fn litter<'a>(
     input_objs: impl IntoIterator<Item = impl AsRef<Path>>,
     output_obj: impl AsRef<Path>,
+    filters: impl IntoIterator<Item = &'a Box<dyn Filter>>,
 ) -> Result<(), Error> {
     // Check output path first because it would be super annoying to
     // get that hour when the processing is already done.
@@ -17,7 +19,10 @@ pub fn litter(
     verify_output_obj_path(output_obj)?;
 
     // Load and merge input scenes.
-    let entities = load_all(input_objs)?;
+    let mut entities = load_all(input_objs)?;
+
+    // And mutate the combined scene according to the passed filters
+    filters.into_iter().for_each(|f| f.apply(&mut entities));
 
     // And finally write everything to disk.
     persist(entities, output_obj)?;

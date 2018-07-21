@@ -68,7 +68,7 @@ fn add_clone_offset(
                     seq = idx,
                     post = new_name_postfix
                 ),
-                material: e.material.clone(),
+                material: Rc::clone(&e.material),
                 mesh: Rc::new(DeinterleavedIndexedMeshBuf {
                     positions: offset_position_vector(e.mesh.positions.clone(), offset),
                     normals: e.mesh.normals.clone(),

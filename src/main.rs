@@ -7,10 +7,12 @@ extern crate aitios_geom;
 extern crate aitios_scene;
 
 mod app;
+mod bounds;
 mod err;
 mod filter;
 mod launcher;
 mod litter;
+mod transform;
 
 use err::summarize_error;
 use failure::Error;

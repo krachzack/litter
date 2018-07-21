@@ -1,7 +1,9 @@
-use aitios_geom::{Aabb, Position, Vector3};
-use aitios_scene::{DeinterleavedIndexedMeshBuf, Entity, Mesh};
+use aitios_geom::Vector3;
+use aitios_scene::Entity;
+use bounds::scene_bounds;
 use filter::Filter;
 use std::rc::Rc;
+use transform::translate;
 
 pub struct Grid {
     /// Duplications in x, y, z direction, respectively.
@@ -34,8 +36,6 @@ impl Filter for Grid {
     fn apply(&self, scene: &mut Vec<Entity>) {
         let bounds = scene_bounds(scene);
         let scene_size = bounds.max - bounds.min;
-        let scene_center = bounds.min + 0.5 * scene_size;
-        let origin = scene_center;
         let cell_size = Vector3::new(
             self.cell_size_x.unwrap_or(scene_size.x),
             self.cell_size_y.unwrap_or(scene_size.y),
@@ -46,15 +46,18 @@ impl Filter for Grid {
             scene.len() * self.dimensions.x * self.dimensions.y * self.dimensions.z,
         );
 
+        let min_x_offset = -0.5 * ((self.dimensions.x - 1) as f32);
+        let min_y_offset = -0.5 * ((self.dimensions.y - 1) as f32);
+        let min_z_offset = -0.5 * ((self.dimensions.z - 1) as f32);
+
         for x in 0..self.dimensions.x {
             for y in 0..self.dimensions.y {
                 for z in 0..self.dimensions.z {
-                    let offset = -origin
-                        + Vector3::new(
-                            cell_size.x * ((x as f32) - 0.5 * ((self.dimensions.x - 1) as f32)),
-                            cell_size.y * ((y as f32) - 0.5 * ((self.dimensions.y - 1) as f32)),
-                            cell_size.z * ((z as f32) - 0.5 * ((self.dimensions.z - 1) as f32)),
-                        );
+                    let offset = Vector3::new(
+                        cell_size.x * ((x as f32) + min_x_offset),
+                        cell_size.y * ((y as f32) + min_y_offset),
+                        cell_size.z * ((z as f32) + min_z_offset),
+                    );
 
                     add_clone_offset(
                         &mut new_scene,
@@ -88,31 +91,11 @@ fn add_clone_offset(
                     post = new_name_postfix
                 ),
                 material: Rc::clone(&e.material),
-                mesh: Rc::new(DeinterleavedIndexedMeshBuf {
-                    positions: offset_position_vector(e.mesh.positions.clone(), offset),
-                    normals: e.mesh.normals.clone(),
-                    texcoords: e.mesh.texcoords.clone(),
-                    indices: e.mesh.indices.clone(),
-                }),
+                mesh: Rc::clone(&e.mesh),
+            })
+            .map(|mut e| {
+                translate(&mut e, offset);
+                e
             }),
     );
-}
-
-fn offset_position_vector(mut positions: Vec<f32>, offset: Vector3<f32>) -> Vec<f32> {
-    positions.chunks_mut(3).for_each(|pos| {
-        pos[0] += offset.x;
-        pos[1] += offset.y;
-        pos[2] += offset.z;
-    });
-
-    positions
-}
-
-fn scene_bounds(scene: &Vec<Entity>) -> Aabb {
-    let vertices = scene
-        .iter()
-        .flat_map(|e| e.mesh.vertices())
-        .map(|v| v.position());
-
-    Aabb::from_points(vertices)
 }

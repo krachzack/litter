@@ -1,5 +1,5 @@
 use failure::{Error, Fail};
-use filter::{Filter, Grid};
+use filter::{Align, Anchor, Filter, Grid};
 use std::str::FromStr;
 
 pub fn filter_from_spec<S>(spec: S) -> Result<Box<dyn Filter>, Error>
@@ -12,6 +12,7 @@ where
 
     match spec_parts.next() {
         None => Err(format_err!("Filter spec appears to be empty")),
+        Some("align") => make_align(spec_parts),
         Some("grid") => make_grid(spec_parts),
         Some(unknown) => Err(format_err!(
             "The type of filter {type} is unknown in the filter spec {spec}",
@@ -19,6 +20,23 @@ where
             spec = spec
         )),
     }
+}
+
+fn make_align<'a>(args: impl Iterator<Item = &'a str>) -> Result<Box<dyn Filter>, Error> {
+    // e.g. c,+,c aligns everythign in positive z and around X/Y origin.
+    let mut aligns = args.map(|align| match align {
+        "+" => Anchor::Above,
+        "-" => Anchor::Under,
+        // nothing, c or any character counts as center
+        _ => Anchor::Center,
+    });
+
+    let x_align = aligns.next().unwrap_or(Anchor::Center);
+    // Above is nicer default for Y
+    let y_align = aligns.next().unwrap_or(Anchor::Above);
+    let z_align = aligns.next().unwrap_or(Anchor::Center);
+
+    Ok(Box::new(Align::new(x_align, y_align, z_align)))
 }
 
 fn make_grid<'a>(mut args: impl Iterator<Item = &'a str>) -> Result<Box<dyn Filter>, Error> {

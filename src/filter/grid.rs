@@ -7,12 +7,25 @@ pub struct Grid {
     /// Duplications in x, y, z direction, respectively.
     /// x times y times z duplications total.
     dimensions: Vector3<usize>,
+    cell_size_x: Option<f32>,
+    cell_size_y: Option<f32>,
+    cell_size_z: Option<f32>,
 }
 
 impl Grid {
-    pub fn new(x_clones: usize, y_clones: usize, z_clones: usize) -> Self {
+    pub fn new(
+        x_clones: usize,
+        y_clones: usize,
+        z_clones: usize,
+        cell_size_x: Option<f32>,
+        cell_size_y: Option<f32>,
+        cell_size_z: Option<f32>,
+    ) -> Self {
         Grid {
             dimensions: Vector3::new(x_clones, y_clones, z_clones),
+            cell_size_x,
+            cell_size_y,
+            cell_size_z,
         }
     }
 }
@@ -22,6 +35,12 @@ impl Filter for Grid {
         let bounds = scene_bounds(scene);
         let scene_size = bounds.max - bounds.min;
         let scene_center = bounds.min + 0.5 * scene_size;
+        let origin = scene_center;
+        let cell_size = Vector3::new(
+            self.cell_size_x.unwrap_or(scene_size.x),
+            self.cell_size_y.unwrap_or(scene_size.y),
+            self.cell_size_z.unwrap_or(scene_size.z),
+        );
 
         let mut new_scene = Vec::with_capacity(
             scene.len() * self.dimensions.x * self.dimensions.y * self.dimensions.z,
@@ -30,11 +49,11 @@ impl Filter for Grid {
         for x in 0..self.dimensions.x {
             for y in 0..self.dimensions.y {
                 for z in 0..self.dimensions.z {
-                    let offset = -scene_center
+                    let offset = -origin
                         + Vector3::new(
-                            scene_size.x * ((x as f32) - 0.5 * ((self.dimensions.x - 1) as f32)),
-                            scene_size.y * ((y as f32) - 0.5 * ((self.dimensions.y - 1) as f32)),
-                            scene_size.z * ((z as f32) - 0.5 * ((self.dimensions.z - 1) as f32)),
+                            cell_size.x * ((x as f32) - 0.5 * ((self.dimensions.x - 1) as f32)),
+                            cell_size.y * ((y as f32) - 0.5 * ((self.dimensions.y - 1) as f32)),
+                            cell_size.z * ((z as f32) - 0.5 * ((self.dimensions.z - 1) as f32)),
                         );
 
                     add_clone_offset(

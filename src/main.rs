@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate clap;
+#[macro_use]
 extern crate failure;
 
 mod app;
@@ -12,7 +13,7 @@ use launcher::Launcher;
 use std::process::exit;
 
 fn main() {
-    if let Err(err) = Launcher::run() {
+    if let Err(err) = Launcher::launch() {
         exit_with_error(err);
     }
 }

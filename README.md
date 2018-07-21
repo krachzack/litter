@@ -9,14 +9,14 @@ This example takes the two scenes in `scene1.obj` and `scene2.obj` and combines 
 into one. While doing that, it applies some filters to make a large scene:
 
     litter scene1.obj scene2.obj \
-        # Ok merge into this file
+    # Ok merge into this file
         -o littered.obj \
-        # Arrange a 10x10 grid centered at the old center point
+    # Arrange a 10x10 grid centered at the old center point
         --filter grid,10x1x10 \
-        # Then take the huge grid thing and center it at the origin,
-        # except the Y axis, everything sits on top of Y = 0
-        --filter align,c,+,c
-        # This is equivalent to the above, there are default values
+    # Then take the huge grid thing and center it at the origin,
+    # except the Y axis, everything sits on top of Y = 0
+        --filter align,c,+,c \
+    # This is equivalent to the above, there are default values
         --filter
 
 The output should appear in `littered.obj` and `littered.mtl`.
